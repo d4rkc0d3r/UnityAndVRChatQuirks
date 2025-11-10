@@ -12,6 +12,9 @@ covMask = (1u << ((uint)(scaledAlpha))) - 1u;
 AMD does flush denormals to zero when sampling float textures with point filtering while nvidia does not.  
 Use the `Texture2D.Load` function when you need exact bit values from float textures.
 
+### Transcendental Functions
+Transcendental functions like `sin()`, `cos()`, `exp2()`, `log2()`, `rsqrt()` & `rcp()` have relaxed precision requirements and as such the vendors do give slightly different results for them. Don't do rng based on aliasing of sin with big values for example as that can amplify those differences to give very different results on different hardware.
+
 ## Differences between Shader Constant Folding and Runtime Evaluation
 There are some differences between how certain functions are evaluated at compile time (constant folding) and at runtime in shaders. This can lead to unexpected results when using "Shader lock in" features like many VRChat shaders and my optimizer with "Write Properties as Static Values" do.
 ### round()
