@@ -11,3 +11,13 @@ covMask = (1u << ((uint)(scaledAlpha))) - 1u;
 ### Point Filtering on Float Textures
 AMD does flush denormals to zero when sampling float textures with point filtering while nvidia does not.  
 Use the `Texture2D.Load` function when you need exact bit values from float textures.
+
+## Differences between Shader Constant Folding and Runtime Evaluation
+There are some differences between how certain functions are evaluated at compile time (constant folding) and at runtime in shaders. This can lead to unexpected results when using "Shader lock in" features like many VRChat shaders and my optimizer with "Write Properties as Static Values" do.
+### round()
+`round()` is round to nearest even at runtime but constant folding in fxc treats it as round to nearest up.  
+`round(0.5)` results in `1` if the 0.5 is known at compile time but `0` at runtime.
+### smoothstep()
+`smoothstep(a, a, a)` evaluates to `0` at runtime but is a toss up between `0` and `1` during constant folding depending on which of the parameters are known at compile time.
+### sampler reuse
+When reusing sampler states across multiple textures you have to make sure to "use" its source texture in the shader that can't be constant folded away. Otherwise the sampler state will also get removed during constant folding leading to a compile error. A good way to hide something from constant folding is to use a dummy constant buffer variable in a branch. The variable will be 0 if not set from the properties block or a global property setter but the compiler doesn't know its 0 at compile time.
