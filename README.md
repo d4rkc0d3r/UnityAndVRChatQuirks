@@ -15,6 +15,9 @@ Use the `Texture2D.Load` function when you need exact bit values from float text
 ### Transcendental Functions
 Transcendental functions like `sin()`, `cos()`, `exp2()`, `log2()`, `rsqrt()` & `rcp()` have relaxed precision requirements and as such the vendors do give slightly different results for them. Don't do rng based on aliasing of sin with big values for example as that can amplify those differences to give very different results on different hardware.
 
+### Tessellation Patch Size Miss Match
+When declaring a hull shader with a patch size that is different from the per primitive vertex count in the mesh, AMD and Nvidia behave differently. Nvidia will use the mesh declared vertex per primitive count while AMD will use the hull shader declared patch size. For example if you do quad tess on a point mesh with 4 control points per patch on AMD you will get 1/4 the patches vs the primitive count of the mesh while on nvidia you will get 1:1 patch to primitive count.
+
 ## Differences between Shader Constant Folding and Runtime Evaluation
 There are some differences between how certain functions are evaluated at compile time (constant folding) and at runtime in shaders. This can lead to unexpected results when using "Shader lock in" features like many VRChat shaders and my optimizer with "Write Properties as Static Values" do.
 ### round()
