@@ -25,6 +25,11 @@ There are some differences between how certain functions are evaluated at compil
 `round(0.5)` results in `1` if the 0.5 is known at compile time but `0` at runtime.
 ### smoothstep()
 `smoothstep(a, a, a)` evaluates to `0` at runtime but is a toss up between `0` and `1` during constant folding depending on which of the parameters are known at compile time.
+### pow()
+`pow(x, p)` gets compiled to `exp2(p * log2(x))` at runtime. This means it is `NaN` for negative `x` values.
+* If `p` & `x` are known at compile time and `p` is an integer value, negative `x` values are not `NaN`.  
+* If `p` is known at compile time and is of value `2`, `3`, `4`, `5`, `6` or `8`, it will get compiled as a series of mul and adds. This also means negative `x` values are not `NaN`.
+* `pow(0, 0)` is `NaN` at runtime, `1` if `p` is known at compile time and then `0` if only `x` but not `p` is known at compile time.
 ### sampler reuse
 When reusing sampler states across multiple textures you have to make sure to "use" its source texture in the shader that can't be constant folded away. Otherwise the sampler state will also get removed during constant folding leading to a compile error. A good way to hide something from constant folding is to use a dummy constant buffer variable in a branch. The variable will be 0 if not set from the properties block or a global property setter but the compiler doesn't know its 0 at compile time.
 ### Transcendental Functions
