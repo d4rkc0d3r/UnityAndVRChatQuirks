@@ -27,3 +27,5 @@ There are some differences between how certain functions are evaluated at compil
 `smoothstep(a, a, a)` evaluates to `0` at runtime but is a toss up between `0` and `1` during constant folding depending on which of the parameters are known at compile time.
 ### sampler reuse
 When reusing sampler states across multiple textures you have to make sure to "use" its source texture in the shader that can't be constant folded away. Otherwise the sampler state will also get removed during constant folding leading to a compile error. A good way to hide something from constant folding is to use a dummy constant buffer variable in a branch. The variable will be 0 if not set from the properties block or a global property setter but the compiler doesn't know its 0 at compile time.
+### Transcendental Functions
+Just like with different GPU vendors or even generations, transcendental functions can give different results when constant folded vs runtime evaluation.
