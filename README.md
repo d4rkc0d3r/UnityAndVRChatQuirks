@@ -61,6 +61,7 @@ float result = dot(vec, vectorIndexingArray[index]);
 This has a couple implications.
 - If any component of `vec` is `NaN` or `+-Inf` the result will always be `NaN` regardless of index.
 - All constant buffer arrays in the shader get put into a single immediate constant buffer. While out of bounds indexing a constant buffer is defined as returning 0, your original oob index might still point to a location inside that immediate constant buffer that has non zero data!
+- You cannot write to vector components dynamically. `vec[index] = value;` will not compile if index is not known at compile time.
 ### Dynamic Constant Buffer Array Indexing
 As already mentioned in the previous section, all constant buffer arrays land in the same constant buffer. oob reading one of your arrays might return data from other arrays instead of 0.
 ### Indexable Registers
