@@ -1,5 +1,7 @@
 # UnityAndVRChatQuirks
-A loose collection of random small mostly shader related things I stumbled upon.
+A loose collection of random small mostly shader related things I stumbled upon.  
+Most of these are extremely niche and or cursed edge cases.  
+This simply represents what I have learned over the years and is only relevant to unity dx11 with fxc. There could be misunderstandings about these systems on my part as well as there is not much prior information to easily find about these topics.
 
 ## Differences between AMD and Nvidia
 ### Alpha to Coverage
