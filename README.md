@@ -34,3 +34,31 @@ There are some differences between how certain functions are evaluated at compil
 When reusing sampler states across multiple textures you have to make sure to "use" its source texture in the shader that can't be constant folded away. Otherwise the sampler state will also get removed during constant folding leading to a compile error. A good way to hide something from constant folding is to use a dummy constant buffer variable in a branch. The variable will be 0 if not set from the properties block or a global property setter but the compiler doesn't know its 0 at compile time.
 ### Transcendental Functions
 Just like with different GPU vendors or even generations, transcendental functions can give different results when constant folded vs runtime evaluation.
+
+## [] Operator on Vectors and Arrays
+There are a lot of quirks and pitfalls when dealing with arrays and vector indexing in HLSL.
+dx11 does have the notion of dynamic indexable registers #x[] but fxc tries its hardest to avoid doing so.  
+There are fundamentally 3 types of arrays:
+- A vector of a primitive type like `float4 vec;`
+- A constant buffer array which you declare with `static const float4 carr[2] = {...};`
+- A modifiable array declared with `float4 arr[2];` using the indexable registers
+
+When indexing into them to read and the index can be determined at compile time, fxc will just emit the values directly for all 3 types. Out of bounds indexing at compile time will cause a compile error for all 3 types as well.
+### Dynamic Vector Indexing
+`float result = vec[index];` will get compiled like this:
+```c
+static const float4 vectorIndexingArray[4] = {
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1
+};
+float result = dot(vec, vectorIndexingArray[index]);
+```
+This has a couple implications.
+- If any component of `vec` is `NaN` or `+-Inf` the result will always be `NaN` regardless of index.
+- All constant buffer arrays in the shader get put into a single immediate constant buffer. While out of bounds indexing a constant buffer is defined as returning 0, your original oob index might still point to a location inside that immediate constant buffer that has non zero data!
+### Dynamic Constant Buffer Array Indexing
+As already mentioned in the previous section, all constant buffer arrays land in the same constant buffer. oob reading one of your arrays might return data from other arrays instead of 0.
+### Indexable Registers
+Most forms of oob indexing like constant buffers, textures & uavs are defined to return 0. However indexable registers oob is **undefined behavior**. Critically this has been reported to crash AMD gpus.
