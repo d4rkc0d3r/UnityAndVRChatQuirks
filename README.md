@@ -10,6 +10,7 @@ AMD does apply screen space dithering when using alpha to coverage while nvidia 
 float scaledAlpha = saturate(alpha) * GetRenderTargetSampleCount() + 0.5;
 covMask = (1u << ((uint)(scaledAlpha))) - 1u;
 ```
+Note: This mask is insufficient when using coarse pixels with VRS.
 ### Point Filtering on Float Textures
 AMD does flush denormals to zero when sampling float textures with point filtering while nvidia does not.  
 Use the `Texture2D.Load` function when you need exact bit values from float textures.
@@ -63,4 +64,4 @@ This has a couple implications.
 ### Dynamic Constant Buffer Array Indexing
 As already mentioned in the previous section, all constant buffer arrays land in the same constant buffer. oob reading one of your arrays might return data from other arrays instead of 0.
 ### Indexable Registers
-Most forms of oob indexing like constant buffers, textures & uavs are defined to return 0. However indexable registers oob is **undefined behavior**. Critically this has been reported to crash AMD gpus.
+Most forms of oob indexing like constant buffers, textures & uavs are defined to return 0. However indexable register oob is **undefined behavior**. Critically this has been reported to crash AMD gpus.
