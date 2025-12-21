@@ -66,3 +66,7 @@ This has a couple implications.
 As already mentioned in the previous section, all constant buffer arrays land in the same constant buffer. oob reading one of your arrays might return data from other arrays instead of 0.
 ### Indexable Registers
 Most forms of oob indexing like constant buffers, textures & uavs are defined to return 0. However indexable register oob is **undefined behavior**. Critically this has been reported to crash AMD gpus.
+
+## Skipping draw call for material slot
+Unity has a niche feature on materials to disable certain passes from materials. [material.SetShaderPassEnabled](https://docs.unity3d.com/ScriptReference/Material.SetShaderPassEnabled.html) can disable passes based on their **LightMode** tag, not pass name as one might expect. You can also edit this with the debug inspector in the editor under `Disabled Shader Passes`.  
+If you make a shader that has exactly 1 pass with lightmode `Always` and then disable that pass on the material, Unity will skip the draw call entirely for that material. Two more tags that you will probably also want for this disabled material are `"IgnoreProjector" = "True"` and `"VRCFallback" = "Hidden"` to avoid the material rendering in projectors and with shaders blocked in VRChat respectively.
