@@ -70,3 +70,19 @@ Most forms of oob indexing like constant buffers, textures & uavs are defined to
 ## Skipping draw call for material slot
 Unity has a niche feature on materials to disable certain passes from materials. [material.SetShaderPassEnabled](https://docs.unity3d.com/ScriptReference/Material.SetShaderPassEnabled.html) can disable passes based on their **LightMode** tag, not pass name as one might expect. You can also edit this with the debug inspector in the editor under `Disabled Shader Passes`.  
 If you make a shader that has exactly 1 pass with lightmode `Always` and then disable that pass on the material, Unity will skip the draw call entirely for that material. Two more tags that you will probably also want for this disabled material are `"IgnoreProjector" = "True"` and `"VRCFallback" = "Hidden"` to avoid the material rendering in projectors and with shaders blocked in VRChat respectively.
+
+## Unity Animator Path Resolution
+When using slashes in the name of game objects in the hierarchy, unity's animator will resolve paths in a way that can lead to unexpected results.
+For example if you have a hierarchy like this:
+```
+- root
+  - a/b
+    - d
+  - a/b/c
+  - a
+    - b
+      - c
+```
+And you try to resolve the path `a/b/c` from `root`, you might expect it to resolve to the gameobject `c`. However it will  resolve to the gameobject `a/b/c` instead.  
+For each child it tries to traverse the path from first child to last returning the first match for the full path. If you were to change the order of the children under root to be `a/b`, `a` and then `a/b/c`, the same path resolution would resolve to the gameobject `c` instead.  
+This means you can not implement path resolution with a simple greedy algorithm as you might have to do backtracking like in this example.
