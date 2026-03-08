@@ -86,3 +86,22 @@ For example if you have a hierarchy like this:
 And you try to resolve the path `a/b/c` from `root`, you might expect it to resolve to the gameobject `c`. However it will  resolve to the gameobject `a/b/c` instead.  
 For each child it tries to traverse the path from first child to last returning the first match for the full path. If you were to change the order of the children under root to be `a/b`, `a` and then `a/b/c`, the same path resolution would resolve to the gameobject `c` instead.  
 This means you can not implement path resolution with a simple greedy algorithm as you might have to do backtracking like in this example.
+
+## Unity Color Properties sRGB vs linear & animation
+In this experiment, all four color properties start initialized to `0.5`:
+- `_ColorLDRrgba`
+- `_ColorHDRrgba`
+- `_ColorLDRxyzw`
+- `_ColorHDRxyzw`
+
+When read back in shader:
+- LDR properties show `0.2140411` (`0x3E5B2D9A`) for red, which indicates sRGB -> linear conversion.
+- HDR properties show `0.5` (`0x3F000000`) for red, which stays in linear.
+
+After running the animation clip (which animates values to `0.5`):
+- All colors animated through `.rgba` curves read back as `0.2140411`.
+- All colors animated through `.xyzw` curves read back as `0.5`.
+
+This means recording an animation for an HDR color can produce different numeric results than what you picked in the color picker. The color picker value is linear, but the recorded `.rgba` animation curve is interpreted like sRGB-style color data, while `.xyzw` behaves like raw linear channels.
+
+Exact repro setup: [`Experiments/ColorAnimation/`](Experiments/ColorAnimation/)
