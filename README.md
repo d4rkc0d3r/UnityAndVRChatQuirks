@@ -105,3 +105,8 @@ After running the animation clip (which animates values to `0.5`):
 This means recording an animation for an HDR color can produce different numeric results than what you picked in the color picker. The color picker value is linear, but the recorded `.rgba` animation curve is interpreted like sRGB-style color data, while `.xyzw` behaves like raw linear channels.
 
 Exact repro setup: [`Experiments/ColorAnimation/`](Experiments/ColorAnimation/)
+
+## Unity Post Processing Scalable Ambient Obscurance (SAO)
+What you can find online is that SAO uses replacement shaders and relies on the shader's `RenderType` tag when rendering. If your shader does not define a `RenderType` tag, AO from other geometry can show through it.
+
+Less well known is that SAO also does not behave correctly if the `ColorMask` ShaderLab command uses a material property, for example `ColorMask [_ColorMask]`. Replacing it with a literal value such as `ColorMask RGBA` fixes the issue.
