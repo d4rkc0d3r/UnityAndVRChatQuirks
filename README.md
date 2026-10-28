@@ -110,3 +110,21 @@ Exact repro setup: [`Experiments/ColorAnimation/`](Experiments/ColorAnimation/)
 What you can find online is that SAO uses replacement shaders and relies on the shader's `RenderType` tag when rendering. If your shader does not define a `RenderType` tag, AO from other geometry can show through it.
 
 Less well known is that SAO also does not behave correctly if the `ColorMask` ShaderLab command uses a material property, for example `ColorMask [_ColorMask]`. Replacing it with a literal value such as `ColorMask RGBA` fixes the issue.
+
+## Multiline comments with # in them
+Beware of `#` inside a multi line comment. Apparently unity doesnt like those when doing a build while its fine in play mode. The following script will throw this error when trying to build an avatar:  
+`Assets\UnityEditorPlayground\BlockBuild.cs(7,10): error CS1024: Preprocessor directive expected`
+```csharp
+#if UNITY_EDITOR
+using UnityEngine;
+using VRC.SDKBase.Editor.BuildPipeline;
+public class BlockBuild : IVRCSDKPreprocessAvatarCallback
+{
+    /*
+        #lmao
+    */
+    public int callbackOrder => -676767;
+    public bool OnPreprocessAvatar(GameObject avatarGameObject) => true;
+}
+#endif
+```
